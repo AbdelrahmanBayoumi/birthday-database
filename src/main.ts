@@ -1,8 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  // cors: true = allow all the request from any domain
+  const app = await NestFactory.create(AppModule, { cors: true });
+
+  // [whitelist: true] = remove all the properties that are not defined in the DTO
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  await app.listen(3333);
 }
 bootstrap();
