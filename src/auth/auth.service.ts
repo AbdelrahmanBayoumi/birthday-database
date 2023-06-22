@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, SignUpDto } from './dto';
@@ -51,7 +52,7 @@ export class AuthService {
    * login a user and return a jwt token
    * @param dto LoginDto object with user email and password
    * @returns jwt token
-   * @throws ForbiddenException if the credentials are incorrect
+   * @throws UnauthorizedException if the credentials are incorrect
    */
   async login(dto: LoginDto) {
     // find the user by email
@@ -61,7 +62,7 @@ export class AuthService {
 
     // if user does not exist throw exception
     if (!user) {
-      throw new ForbiddenException('Credentials incorrect');
+      throw new UnauthorizedException('Email or password incorrect');
     }
 
     // compare password
@@ -69,7 +70,7 @@ export class AuthService {
 
     // if password incorrect throw exception
     if (!pwMatches) {
-      throw new ForbiddenException('Credentials incorrect');
+      throw new UnauthorizedException('Email or password incorrect');
     }
 
     return this.signToken(user.id, user.email);

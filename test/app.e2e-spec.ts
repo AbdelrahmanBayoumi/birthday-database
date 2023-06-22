@@ -137,6 +137,28 @@ describe('App e2e', () => {
         return pactum.spec().post('/auth/login').expectStatus(400);
       });
 
+      it('should throw if password is wrong', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            email: dto.email,
+            password: 'fake_password',
+          })
+          .expectStatus(401);
+      });
+
+      it('should throw if email is wrong', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            email: 'fake_email@example.com',
+            password: dto.password,
+          })
+          .expectStatus(401);
+      });
+
       it('should login', () => {
         return pactum
           .spec()
