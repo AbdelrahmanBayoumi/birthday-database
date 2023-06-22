@@ -17,7 +17,7 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Patch()
+  @Patch(':id')
   editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
     if (!dto.fullName && !dto.birthday) {
       throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
