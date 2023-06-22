@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, SignUpDto } from './dto';
 import * as argon from 'argon2';
@@ -37,7 +41,7 @@ export class AuthService {
     } catch (error) {
       // if the error is because of a duplicate email
       if (error.code && error.code === 'P2002') {
-        throw new ForbiddenException('Credentials taken');
+        throw new ConflictException('Email already used');
       }
       throw error;
     }
