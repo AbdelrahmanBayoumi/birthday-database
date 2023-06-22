@@ -1,7 +1,5 @@
 import { AppController } from './app.controller';
 import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -13,10 +11,6 @@ import { BirthdayModule } from './birthday/birthday.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-      exclude: ['/api*'],
     }),
     // LoggerModule.forRoot(),
     PrismaModule,
