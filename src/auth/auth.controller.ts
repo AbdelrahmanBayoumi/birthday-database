@@ -31,6 +31,8 @@ export class AuthController {
   @Get('check')
   @UseGuards(JwtGuard)
   checkToken(@GetUser() user: User) {
+    user.createdAt = undefined;
+    user.updatedAt = undefined;
     return user;
   }
 }
