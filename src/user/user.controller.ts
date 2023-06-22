@@ -4,8 +4,6 @@ import {
   Patch,
   Body,
   UseGuards,
-  BadRequestException,
-  Get,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
