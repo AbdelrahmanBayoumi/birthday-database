@@ -61,7 +61,7 @@ export class AuthService {
 
     // if user does not exist throw exception
     if (!user) {
-      throw new UnauthorizedException('Email or password incorrect');
+      throw new UnauthorizedException('Email Not Found');
     }
 
     // compare password

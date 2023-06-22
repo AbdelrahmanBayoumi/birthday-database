@@ -19,6 +19,8 @@ export class UserService {
     });
 
     delete user.hash;
+    delete user.createdAt;
+    delete user.updatedAt;
     return user;
   }
 
