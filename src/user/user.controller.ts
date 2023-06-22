@@ -1,16 +1,20 @@
 import {
   Controller,
   Delete,
+  HttpCode,
   Patch,
   Body,
+  Param,
   UseGuards,
   HttpException,
   HttpStatus,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { JwtGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { EditUserDto } from './dto';
 import { UserService } from './user.service';
+import { User } from '@prisma/client';
 
 @UseGuards(JwtGuard)
 @Controller('users')
@@ -26,8 +30,16 @@ export class UserController {
     return this.userService.editUser(userId, dto);
   }
 
-  @Delete()
-  deleteUser(@GetUser('id') userId: number) {
-    return this.userService.deleteUser(userId);
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+  ) {
+    if (user.id !== userId) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    await this.userService.deleteUser(userId);
+    return;
   }
 }

@@ -34,6 +34,7 @@ export class UserService {
   async deleteUser(userId: number) {
     const user = await this.prisma.user.delete({ where: { id: userId } });
     delete user.hash;
-    return user;
+    delete user.createdAt;
+    delete user.updatedAt;
   }
 }

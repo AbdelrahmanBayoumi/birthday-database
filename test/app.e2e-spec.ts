@@ -20,7 +20,7 @@ describe('App e2e', () => {
     await app.listen(3334);
 
     prisma = app.get(PrismaService);
-    await prisma.cleanDb();
+    // await prisma.cleanDb();
     pactum.request.setBaseUrl('http://localhost:3334');
   });
 
@@ -30,8 +30,8 @@ describe('App e2e', () => {
 
   describe('Auth', () => {
     const dto = {
-      email: 'abdelrahmanbayoumi1@gmail.com',
-      fullName: 'abdo',
+      email: 'test@gmail.com',
+      fullName: 'Abdelrahman',
       birthday: '1999-03-11',
       password: 'abc1244',
     };
@@ -177,7 +177,8 @@ describe('App e2e', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .expectStatus(200);
+          .expectStatus(200)
+          .stores('id', 'id');
       });
     });
   });
@@ -191,16 +192,17 @@ describe('App e2e', () => {
       it('should throw if no body provided', () => {
         return pactum
           .spec()
-          .patch('/users')
+          .patch('/users/$S{id}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
           .expectStatus(400);
       });
+
       it('should edit user', () => {
         return pactum
           .spec()
-          .patch('/users')
+          .patch('/users/$S{id}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
@@ -208,6 +210,28 @@ describe('App e2e', () => {
           .expectStatus(200)
           .expectBodyContains(dto.fullName)
           .expectBodyContains(dto.birthday);
+      });
+    });
+
+    describe('Delete user', () => {
+      it('should throw if user id is not equal authorized user', () => {
+        return pactum
+          .spec()
+          .delete('/users/-1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(403);
+      });
+
+      it('should delete user', () => {
+        return pactum
+          .spec()
+          .delete('/users/$S{id}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(204);
       });
     });
   });
