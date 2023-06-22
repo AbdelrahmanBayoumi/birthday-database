@@ -1,5 +1,6 @@
 # Keep environment variables out of source control
 .env
+.env.*
 # compiled output
 /dist
 /node_modules
