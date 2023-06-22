@@ -19,7 +19,7 @@ model User {
   hash  String
 
   fullName String
-  birhtday String
+  birthday String
   Birthday Birthday[]
 
   @@map("users")

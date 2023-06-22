@@ -6,7 +6,7 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "hash" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
-    "birhtday" TIMESTAMP(3) NOT NULL,
+    "birthday" TEXT NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -18,7 +18,7 @@ CREATE TABLE "birthdays" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "name" TEXT NOT NULL,
     "relationship" TEXT NOT NULL,
-    "birthday" TIMESTAMP(3) NOT NULL,
+    "birthday" TEXT NOT NULL,
     "notes" TEXT,
     "userId" INTEGER NOT NULL,
 

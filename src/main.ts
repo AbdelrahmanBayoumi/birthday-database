@@ -14,7 +14,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // logger for all the routes
-  app.useLogger(app.get(Logger));
+  // app.useLogger(app.get(Logger));
 
   // [whitelist: true] = remove all the properties that are not defined in the DTO
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));

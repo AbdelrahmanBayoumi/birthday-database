@@ -17,7 +17,7 @@ import { PrismaModule } from './prisma/prisma.module';
       rootPath: join(__dirname, '..', 'client'),
       exclude: ['/api*'],
     }),
-    LoggerModule.forRoot(),
+    // LoggerModule.forRoot(),
     PrismaModule,
     AuthModule,
     UserModule,

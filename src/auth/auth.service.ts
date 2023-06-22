@@ -29,7 +29,7 @@ export class AuthService {
           email: dto.email,
           hash,
           fullName: dto.fullName,
-          birhtday: dto.birthday,
+          birthday: dto.birthday,
         },
       });
 
@@ -92,4 +92,6 @@ export class AuthService {
 
     return { access_token: token };
   }
+
+  // TODO: handle forgot password
 }
