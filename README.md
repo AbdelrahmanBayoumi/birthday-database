@@ -38,10 +38,12 @@ The backend API provides the following endpoints:
 3. **`GET /auth/check`** - Check user Token
 4. **`POST /auth/refresh`**: Refresh the authentication token.
 5. **`POST /auth/forgot-password`**: Initiate the password reset process by sending a reset link to the user's email.
+6. **`POST /auth/active-email`**: Verify the user's email address by confirming the provided verification token.
 
 ### User
 
 1. **`PATCH /users/:id`** - Update user [ `fullName` or `birthday`]
+2. **`DELETE /users/:id`** - Delete the authenticated user
 
 ### Birthdays
 
