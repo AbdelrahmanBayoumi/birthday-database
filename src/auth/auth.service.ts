@@ -20,10 +20,10 @@ export class AuthService {
    * @throws ForbiddenException if the email is already taken
    */
   async signup(dto: SignUpDto) {
-    // generate the password hash
-    const hash = await argon.hash(dto.password);
-    // save the new user in the db
     try {
+      // generate the password hash
+      const hash = await argon.hash(dto.password);
+      // save the new user in the db
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
