@@ -4,6 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto } from '../src/user/dto';
+import { CreateBirthdayDto } from 'src/birthday/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -28,19 +29,19 @@ describe('App e2e', () => {
     app.close();
   });
 
+  describe('Helth Check', () => {
+    it('should return status ok', () => {
+      return pactum.spec().get('/health-check').expectStatus(200);
+    });
+  });
+
   describe('Auth', () => {
     const dto = {
-      email: 'test@gmail.com',
+      email: `test@gmail.com`,
       fullName: 'Abdelrahman',
       birthday: '1999-03-11',
       password: 'abc1244',
     };
-
-    describe('Helth Check', () => {
-      it('should return status ok', () => {
-        return pactum.spec().get('/health-check').expectStatus(200);
-      });
-    });
 
     describe('Signup', () => {
       it('should throw if email empty', () => {
@@ -212,7 +213,269 @@ describe('App e2e', () => {
           .expectBodyContains(dto.birthday);
       });
     });
+  });
 
+  describe('Auth', () => {
+    const dto = {
+      email: `test2@gmail.com`,
+      fullName: 'Mustafa Hamdy',
+      birthday: '1963-08-14',
+      password: 'abc1244',
+    };
+    describe('Signup', () => {
+      it('should signup to second test user', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(dto)
+          .expectStatus(201)
+          .stores('userAt2', 'access_token');
+      });
+    });
+    describe('Check Token', () => {
+      it('should get second user if token is valid', () => {
+        return pactum
+          .spec()
+          .get('/auth/check')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt2}',
+          })
+          .expectStatus(200)
+          .stores('id2', 'id');
+      });
+    });
+  });
+
+  describe('Birthday', () => {
+    const dto: CreateBirthdayDto = {
+      name: 'Ahmed',
+      birthday: '1999-03-11',
+      relationship: 'friend',
+      notes: 'test notes',
+    };
+    describe('Create birthday', () => {
+      it('should throw if no auth token', () => {
+        return pactum.spec().post('/birthday').expectStatus(401);
+      });
+
+      it('should throw if WRONG auth token', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withHeaders({
+            Authorization: 'Bearer 1',
+          })
+          .expectStatus(401);
+      });
+
+      it('should throw if no body provided', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw if no name provided', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withBody({
+            birthday: dto.birthday,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw if no birthday provided', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withBody({
+            name: dto.name,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw if birthday is not IsISO8601 type', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withBody({
+            name: dto.name,
+            birthday: '01-01-2021',
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('should create birthday', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(201)
+          .stores('birthdayId', 'id');
+      });
+    });
+    describe('Get all birthdays', () => {
+      it('should throw if no auth token', () => {
+        return pactum.spec().get('/birthday').expectStatus(401);
+      });
+
+      it('should get all birthdays', () => {
+        return pactum
+          .spec()
+          .get('/birthday')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
+
+    describe('Get one birthday by id', () => {
+      it('should throw if no auth token', () => {
+        return pactum.spec().get('/birthday/$S{birthdayId}').expectStatus(401);
+      });
+
+      it('should throw if birthdayId is not found', () => {
+        return pactum
+          .spec()
+          .get('/birthday/-1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(404);
+      });
+
+      it('should throw if birthdayId is not match user', () => {
+        return pactum
+          .spec()
+          .get('/birthday/$S{birthdayId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt2}',
+          })
+          .expectStatus(403);
+      });
+
+      it('should get one birthday by id', () => {
+        return pactum
+          .spec()
+          .get('/birthday/$S{birthdayId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(dto.name)
+          .expectBodyContains(dto.birthday);
+      });
+    });
+
+    describe('Edit birthday', () => {
+      it('should throw if no auth token', () => {
+        return pactum
+          .spec()
+          .patch('/birthday/$S{birthdayId}')
+          .expectStatus(401);
+      });
+
+      it('should throw if birthdayId is not found', () => {
+        return pactum
+          .spec()
+          .patch('/birthday/-1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(404);
+      });
+
+      it('should throw if birthdayId is not match user', () => {
+        return pactum
+          .spec()
+          .patch('/birthday/$S{birthdayId}')
+          .withBody({
+            notes: 'new notes',
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt2}',
+          })
+          .expectStatus(403);
+      });
+
+      it('should edit birthday by id', () => {
+        return pactum
+          .spec()
+          .patch('/birthday/$S{birthdayId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody({
+            notes: 'new notes',
+          })
+          .expectStatus(200)
+          .expectBodyContains('new notes');
+      });
+    });
+
+    describe('Delete birthday', () => {
+      it('should throw if no auth token', () => {
+        return pactum
+          .spec()
+          .delete('/birthday/$S{birthdayId}')
+          .expectStatus(401);
+      });
+
+      it('should throw if birthdayId is not found', () => {
+        return pactum
+          .spec()
+          .delete('/birthday/-1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(404);
+      });
+
+      it('should throw if birthdayId is not match user', () => {
+        return pactum
+          .spec()
+          .delete('/birthday/$S{birthdayId}')
+          .withBody({
+            notes: 'new notes',
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt2}',
+          })
+          .expectStatus(403);
+      });
+
+      it('should delete birthday by id', () => {
+        return pactum
+          .spec()
+          .delete('/birthday/$S{birthdayId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(204);
+      });
+    });
+  });
+
+  // delete users after birthday test
+  describe('User', () => {
     describe('Delete user', () => {
       it('should throw if user id is not equal authorized user', () => {
         return pactum
@@ -230,6 +493,16 @@ describe('App e2e', () => {
           .delete('/users/$S{id}')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(204);
+      });
+
+      it('should delete second user', () => {
+        return pactum
+          .spec()
+          .delete('/users/$S{id2}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt2}',
           })
           .expectStatus(204);
       });

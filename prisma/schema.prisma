@@ -21,6 +21,8 @@ model User {
 
   fullName String
   birthday String
+  // One to Many Relationship between User and Birthday
+  // One User can have many Birthdays
   Birthday Birthday[]
 
   @@map("users")
@@ -32,10 +34,12 @@ model Birthday {
   updatedAt DateTime @updatedAt
 
   name         String
-  relationship String
   birthday     String
+  relationship String?
   notes        String?
 
+  // Many to One Relationship between Birthday and User
+  // Many Birthdays can belong to one User
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
