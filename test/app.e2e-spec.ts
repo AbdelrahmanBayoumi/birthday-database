@@ -109,7 +109,7 @@ describe('App e2e', () => {
       });
     });
 
-    describe('login', () => {
+    describe('Login', () => {
       it('should throw if email empty', () => {
         return pactum
           .spec()
@@ -162,7 +162,8 @@ describe('App e2e', () => {
           .post('/auth/login')
           .withBody(dto)
           .expectStatus(200)
-          .stores('userAt', 'access_token');
+          .stores('userAt', 'access_token')
+          .stores('userRt', 'refresh_token');
       });
     });
 
@@ -176,6 +177,52 @@ describe('App e2e', () => {
           })
           .expectStatus(200)
           .stores('id', 'id');
+      });
+    });
+
+    describe('Logout', () => {
+      it('should throw when no access token provided', () => {
+        return pactum.spec().post('/auth/logout').expectStatus(401);
+      });
+
+      it('should logout', () => {
+        return pactum
+          .spec()
+          .post('/auth/logout')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200);
+      });
+
+      describe('Login', () => {
+        it('should login again after logout', () => {
+          return pactum
+            .spec()
+            .post('/auth/login')
+            .withBody(dto)
+            .expectStatus(200)
+            .stores('userAt', 'access_token')
+            .stores('userRt', 'refresh_token');
+        });
+      });
+    });
+
+    describe('Refresh Token', () => {
+      it('should throw when no refresh token provided', () => {
+        return pactum.spec().post('/auth/refresh').expectStatus(401);
+      });
+
+      it('should get new access token and refresh token', () => {
+        return pactum
+          .spec()
+          .post('/auth/refresh')
+          .withHeaders({
+            Authorization: 'Bearer $S{userRt}',
+          })
+          .expectStatus(200)
+          .stores('userAt', 'access_token')
+          .stores('userRt', 'refresh_token');
       });
     });
   });
@@ -225,7 +272,8 @@ describe('App e2e', () => {
           .post('/auth/signup')
           .withBody(dto)
           .expectStatus(201)
-          .stores('userAt2', 'access_token');
+          .stores('userAt2', 'access_token')
+          .stores('userRt2', 'refresh_token');
       });
     });
     describe('Check Token', () => {

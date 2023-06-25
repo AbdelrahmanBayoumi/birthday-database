@@ -10,13 +10,13 @@ import {
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
-import { JwtGuard } from '../auth/guard';
+import { AccessTokenGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { EditUserDto } from './dto';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 
-@UseGuards(JwtGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}

@@ -12,12 +12,12 @@ import {
   Post,
   ParseIntPipe,
 } from '@nestjs/common';
-import { JwtGuard } from '../auth/guard';
+import { AccessTokenGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { CreateBirthdayDto, EditBirthdayDto } from './dto';
 import { User } from '@prisma/client';
 
-@UseGuards(JwtGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('birthday')
 export class BirthdayController {
   constructor(private birthdayService: BirthdayService) {}
