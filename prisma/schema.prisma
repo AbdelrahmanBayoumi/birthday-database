@@ -22,9 +22,11 @@ model User {
 
   fullName String
   birthday String
+
+  isVerified Boolean    @default(false)
   // One to Many Relationship between User and Birthday
   // One User can have many Birthdays
-  Birthday Birthday[]
+  Birthday   Birthday[]
 
   @@map("users")
 }

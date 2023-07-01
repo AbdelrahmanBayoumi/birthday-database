@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Tokens } from './types';
 import { User } from '@prisma/client';
+import { MailUtil } from 'src/utils/MailUtil';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private mailUtil: MailUtil,
   ) {}
 
   /**
@@ -53,6 +55,8 @@ export class AuthService {
         },
       });
 
+      await this.sendVerificationEmail(user.id, user.email);
+
       const tokens = await this.getTokens(user.id, user.email);
       await this.updateRefreshToken(user.id, tokens.refresh_token);
       return tokens;
@@ -63,6 +67,57 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  /**
+   * verify the user by sending a verification email
+   * @param userId user id to be verified
+   * @param email email to be verified
+   * @returns true if the user was verified successfully
+   * @throws Error if the user was not verified successfully
+   */
+  private async sendVerificationEmail(userId: number, email: string) {
+    const emailToken = await this.jwt.signAsync(
+      { sub: userId, email },
+      {
+        expiresIn: '1d',
+        secret: this.config.get('JWT_EMAIL_SECRET'),
+      },
+    );
+    const url =
+      this.config.get('HOST_URL') + '/auth/verification/' + emailToken;
+
+    if (!(await this.mailUtil.sendVerificationMail(email, url))) {
+      throw new Error('ERROR in Sending verification Mail');
+    }
+  }
+
+  async resendVerification(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Access denied');
+    }
+    await this.sendVerificationEmail(user.id, user.email);
+  }
+
+  /**
+   * verify user email and return a html page to be displayed
+   * @param token token to be verified
+   * @returns html page to be displayed after the email is verified
+   */
+  async verifyEmail(token: string) {
+    const { sub: userId } = await this.jwt.verifyAsync(token, {
+      secret: this.config.get('JWT_EMAIL_SECRET'),
+    });
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isVerified: true },
+    });
+
+    return `<!DOCTYPE html> <html> <head> <title>Email Activation</title> </head> <body style=" background-color: #f5f7fe; text-align: center; " > <div style=" height: 100vh; display: flex; align-items: center; justify-content: center; " > <div style=" padding: 40px; display: flex; flex-direction: column; background: #fff; border-radius: 20px; box-shadow: 2px 3px 10px #00000029; " > <h1>📅 Birthday Database</h1> <h2>Email Activated Successfully!</h2> <p style="color: #666; font-size: 18px"> ✅ Thank you for activating your email. </p> <p style="color: #666; font-size: 18px">You can go close this window</p> </div> </div> </body> </html>`;
   }
 
   /**

@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, LoginDto } from './dto';
@@ -53,5 +54,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   refreshToken(@GetUser() user: User) {
     return this.authService.refreshTokens(user);
+  }
+
+  @Get('/verification/:token')
+  verifyEmail(@Param('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  resendVerification(@Body('email') email: string) {
+    return this.authService.resendVerification(email);
   }
 }
