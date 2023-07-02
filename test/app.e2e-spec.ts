@@ -9,6 +9,12 @@ import { PrismaService } from '../src/prisma/prisma.service';
 describe('App e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  const userDto = {
+    email: `test@example.com`,
+    fullName: 'Abdelrahman',
+    birthday: '1999-03-11',
+    password: 'abc1244',
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -34,22 +40,15 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
-    const dto = {
-      email: `test@example.com`,
-      fullName: 'Abdelrahman',
-      birthday: '1999-03-11',
-      password: 'abc1244',
-    };
-
     describe('Signup', () => {
       it('should throw if email empty', () => {
         return pactum
           .spec()
           .post('/auth/signup')
           .withBody({
-            password: dto.password,
-            fullName: dto.fullName,
-            birthday: dto.birthday,
+            password: userDto.password,
+            fullName: userDto.fullName,
+            birthday: userDto.birthday,
           })
           .expectStatus(400);
       });
@@ -59,9 +58,9 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/signup')
           .withBody({
-            email: dto.email,
-            password: dto.password,
-            birthday: dto.birthday,
+            email: userDto.email,
+            password: userDto.password,
+            birthday: userDto.birthday,
           })
           .expectStatus(400);
       });
@@ -71,9 +70,9 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/signup')
           .withBody({
-            email: dto.email,
-            fullName: dto.fullName,
-            birthday: dto.birthday,
+            email: userDto.email,
+            fullName: userDto.fullName,
+            birthday: userDto.birthday,
           })
           .expectStatus(400);
       });
@@ -83,9 +82,9 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/signup')
           .withBody({
-            email: dto.email,
-            fullName: dto.fullName,
-            password: dto.password,
+            email: userDto.email,
+            fullName: userDto.fullName,
+            password: userDto.password,
           })
           .expectStatus(400);
       });
@@ -98,7 +97,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .post('/auth/signup')
-          .withBody(dto)
+          .withBody(userDto)
           .expectStatus(201);
       });
 
@@ -106,7 +105,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .post('/auth/signup')
-          .withBody(dto)
+          .withBody(userDto)
           .expectStatus(409);
       });
     });
@@ -142,7 +141,7 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/login')
           .withBody({
-            password: dto.password,
+            password: userDto.password,
           })
           .expectStatus(400);
       });
@@ -152,7 +151,7 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/login')
           .withBody({
-            email: dto.email,
+            email: userDto.email,
           })
           .expectStatus(400);
       });
@@ -166,7 +165,7 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/login')
           .withBody({
-            email: dto.email,
+            email: userDto.email,
             password: 'fake_password',
           })
           .expectStatus(401);
@@ -178,7 +177,7 @@ describe('App e2e', () => {
           .post('/auth/login')
           .withBody({
             email: 'fake_email@example.com',
-            password: dto.password,
+            password: userDto.password,
           })
           .expectStatus(401);
       });
@@ -187,7 +186,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .post('/auth/login')
-          .withBody(dto)
+          .withBody(userDto)
           .expectStatus(200)
           .stores('userAt', 'access_token')
           .stores('userRt', 'refresh_token');
@@ -227,7 +226,7 @@ describe('App e2e', () => {
           return pactum
             .spec()
             .post('/auth/login')
-            .withBody(dto)
+            .withBody(userDto)
             .expectStatus(200)
             .stores('userAt', 'access_token')
             .stores('userRt', 'refresh_token');
@@ -281,6 +280,53 @@ describe('App e2e', () => {
           .expectStatus(200)
           .expectBodyContains(dto.fullName)
           .expectBodyContains(dto.birthday);
+      });
+    });
+    describe('Change password', () => {
+      it('should throw if no body provided', () => {
+        return pactum
+          .spec()
+          .patch('/users/$S{id}/change-password')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+      it('should throw if old password is wrong', () => {
+        return pactum
+          .spec()
+          .patch('/users/$S{id}/change-password')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody({
+            currentPassword: 'WRONG_PASSWORD',
+            newPassword: '123456',
+          })
+          .expectStatus(401);
+      });
+      it('should throw if new password is short', () => {
+        return pactum
+          .spec()
+          .patch('/users/$S{id}/change-password')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody({ currentPassword: userDto.password, newPassword: '12' })
+          .expectStatus(400);
+      });
+      it('should change password', () => {
+        return pactum
+          .spec()
+          .patch('/users/$S{id}/change-password')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody({
+            currentPassword: userDto.password,
+            newPassword: '123456',
+          })
+          .expectStatus(200);
       });
     });
   });
