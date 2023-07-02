@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategy';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HashService } from '../utils/hash.service';
 import { MailUtil } from '../utils/MailUtil';
 
 @Module({
@@ -22,6 +23,12 @@ import { MailUtil } from '../utils/MailUtil';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy, MailUtil],
+  providers: [
+    AuthService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    HashService,
+    MailUtil,
+  ],
 })
 export class AuthModule {}

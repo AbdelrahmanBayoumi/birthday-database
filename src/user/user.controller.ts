@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
-import { EditUserDto } from './dto';
+import { ChangePasswordDto, EditUserDto } from './dto';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 
@@ -22,7 +22,14 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Patch(':id')
-  editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
+  editUser(
+    @GetUser() user: User,
+    @Body() dto: EditUserDto,
+    @Param('id', ParseIntPipe) userId: number,
+  ) {
+    this.checkIfUserIsAuthorized(user, userId);
+
+    // if no data is provided
     if (!dto.fullName && !dto.birthday) {
       throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
@@ -36,10 +43,31 @@ export class UserController {
     @GetUser() user: User,
     @Param('id', ParseIntPipe) userId: number,
   ) {
+    this.checkIfUserIsAuthorized(user, userId);
+    await this.userService.deleteUser(userId);
+    return;
+  }
+
+  @Patch(':id/change-password')
+  async changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+  ) {
+    this.checkIfUserIsAuthorized(user, userId);
+    return this.userService.changePassword(userId, changePasswordDto);
+  }
+
+  /**
+   * Check if user is authorized to perform action
+   * @param user user from access token
+   * @param userId user id from url
+   * @returns void
+   * @throws ForbiddenException if user is not authorized
+   */
+  private checkIfUserIsAuthorized(user: User, userId: number) {
     if (user.id !== userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    await this.userService.deleteUser(userId);
-    return;
   }
 }

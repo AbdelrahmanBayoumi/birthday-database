@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, SignUpDto } from './dto';
-import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Tokens } from './types';
 import { User } from '@prisma/client';
 import { MailUtil } from '../utils/MailUtil';
+import { HashService } from '../utils/hash.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +21,7 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
     private mailUtil: MailUtil,
+    private readonly hashService: HashService,
   ) {}
 
   /**
@@ -29,7 +30,9 @@ export class AuthService {
    * @param refreshToken refresh token to be updated
    */
   async updateRefreshToken(userId: number, refreshToken: string) {
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken = await this.hashService.generateHash(
+      refreshToken,
+    );
     await this.prisma.user.update({
       where: { id: userId },
       data: { hashedRt: hashedRefreshToken },
@@ -45,7 +48,7 @@ export class AuthService {
   async signup(dto: SignUpDto): Promise<Tokens> {
     try {
       // generate the password hash
-      const hash = await this.hashData(dto.password);
+      const hash = await this.hashService.generateHash(dto.password);
       // save the new user in the db
       const user = await this.prisma.user.create({
         data: {
@@ -143,7 +146,10 @@ export class AuthService {
     }
 
     // compare password
-    const pwMatches = await this.verifyHashed(user.hash, dto.password);
+    const pwMatches = await this.hashService.verifyHashed(
+      user.hash,
+      dto.password,
+    );
 
     // if password incorrect throw exception
     if (!pwMatches) {
@@ -173,7 +179,7 @@ export class AuthService {
       this.jwt.signAsync(
         { sub: userId, email },
         {
-          expiresIn: '15m',
+          expiresIn: '7d',
           secret: this.config.get('JWT_REFRESH_SECRET'),
         },
       ),
@@ -183,25 +189,6 @@ export class AuthService {
       access_token,
       refresh_token,
     };
-  }
-
-  /**
-   * hash the data using argon2
-   * @param data data to be signed
-   * @returns hashed data
-   */
-  async hashData(data: string) {
-    return await argon.hash(data);
-  }
-
-  /**
-   * verify the hash and return true if the password matches the hash
-   * @param hash hashed password
-   * @param plain plain text password
-   * @returns true if the password matches the hash otherwise false
-   */
-  async verifyHashed(hash: string, plain: string) {
-    return await argon.verify(hash, plain);
   }
 
   /**
@@ -235,7 +222,7 @@ export class AuthService {
     if (!user || !user.hashedRt || !user['refreshToken'])
       throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await this.verifyHashed(
+    const rtMatches = await this.hashService.verifyHashed(
       user.hashedRt,
       user['refreshToken'],
     );
