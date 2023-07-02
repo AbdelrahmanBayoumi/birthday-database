@@ -37,7 +37,6 @@ export class RefreshTokenStrategy extends PassportStrategy(
     if (!user) {
       return null;
     }
-    delete user.hash;
     return user;
   }
 }

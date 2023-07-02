@@ -18,23 +18,17 @@ export class UserService {
       data: { ...dto },
     });
 
-    delete user.hash;
-    delete user.createdAt;
-    delete user.updatedAt;
     return user;
   }
 
   /**
    * delete user by id and return user object without hash field
    * @param userId user id
-   * @returns user object without hash field
    * @throws Error if user not found
    * @throws Error if user not deleted
    */
   async deleteUser(userId: number) {
-    const user = await this.prisma.user.delete({ where: { id: userId } });
-    delete user.hash;
-    delete user.createdAt;
-    delete user.updatedAt;
+    await this.prisma.user.delete({ where: { id: userId } });
+    return;
   }
 }

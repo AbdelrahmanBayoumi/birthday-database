@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BirthdayModule } from './birthday/birthday.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { UserSensitiveDataInterceptor } from './interceptors';
 
 @Module({
   imports: [
@@ -17,6 +19,11 @@ import { BirthdayModule } from './birthday/birthday.module';
     BirthdayModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: UserSensitiveDataInterceptor,
+    },
+  ],
 })
 export class AppModule {}

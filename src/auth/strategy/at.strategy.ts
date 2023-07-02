@@ -26,7 +26,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!user) {
       return null;
     }
-    delete user.hash;
     return user;
   }
 }
