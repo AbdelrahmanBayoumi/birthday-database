@@ -11,4 +11,11 @@ export class PrismaService extends PrismaClient {
   cleanDb() {
     return this.$transaction([this.user.deleteMany()]);
   }
+
+  async verifiyUserById(userId: number) {
+    return this.user.update({
+      where: { id: userId },
+      data: { isVerified: true },
+    });
+  }
 }

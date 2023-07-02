@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategy';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { MailUtil } from 'src/utils/MailUtil';
+import { MailUtil } from '../utils/MailUtil';
 
 @Module({
   imports: [

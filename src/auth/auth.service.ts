@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, SignUpDto } from './dto';
@@ -11,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Tokens } from './types';
 import { User } from '@prisma/client';
-import { MailUtil } from 'src/utils/MailUtil';
+import { MailUtil } from '../utils/MailUtil';
 
 @Injectable()
 export class AuthService {
@@ -108,16 +109,20 @@ export class AuthService {
    * @returns html page to be displayed after the email is verified
    */
   async verifyEmail(token: string) {
-    const { sub: userId } = await this.jwt.verifyAsync(token, {
-      secret: this.config.get('JWT_EMAIL_SECRET'),
-    });
+    try {
+      const { sub: userId } = await this.jwt.verifyAsync(token, {
+        secret: this.config.get('JWT_EMAIL_SECRET'),
+      });
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { isVerified: true },
-    });
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isVerified: true },
+      });
 
-    return `<!DOCTYPE html> <html> <head> <title>Email Activation</title> </head> <body style=" background-color: #f5f7fe; text-align: center; " > <div style=" height: 100vh; display: flex; align-items: center; justify-content: center; " > <div style=" padding: 40px; display: flex; flex-direction: column; background: #fff; border-radius: 20px; box-shadow: 2px 3px 10px #00000029; " > <h1>📅 Birthday Database</h1> <h2>Email Activated Successfully!</h2> <p style="color: #666; font-size: 18px"> ✅ Thank you for activating your email. </p> <p style="color: #666; font-size: 18px">You can go close this window</p> </div> </div> </body> </html>`;
+      return `<!DOCTYPE html> <html> <head> <title>Email Activation</title> </head> <body style=" background-color: #f5f7fe; text-align: center; " > <div style=" height: 100vh; display: flex; align-items: center; justify-content: center; " > <div style=" padding: 40px; display: flex; flex-direction: column; background: #fff; border-radius: 20px; box-shadow: 2px 3px 10px #00000029; " > <h1>📅 Birthday Database</h1> <h2>Email Activated Successfully!</h2> <p style="color: #666; font-size: 18px"> ✅ Thank you for activating your email. </p> <p style="color: #666; font-size: 18px">You can go close this window</p> </div> </div> </body> </html>`;
+    } catch (error) {
+      throw new BadRequestException('Access denied');
+    }
   }
 
   /**

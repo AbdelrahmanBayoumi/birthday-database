@@ -4,9 +4,11 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { EditUserDto } from '../src/user/dto';
 import { CreateBirthdayDto } from 'src/birthday/dto';
+import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('App e2e', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -17,7 +19,7 @@ describe('App e2e', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     await app.init();
     await app.listen(3334);
-
+    prisma = app.get(PrismaService);
     pactum.request.setBaseUrl('http://localhost:3334');
   });
 
@@ -33,7 +35,7 @@ describe('App e2e', () => {
 
   describe('Auth', () => {
     const dto = {
-      email: `test@gmail.com`,
+      email: `test@example.com`,
       fullName: 'Abdelrahman',
       birthday: '1999-03-11',
       password: 'abc1244',
@@ -107,6 +109,31 @@ describe('App e2e', () => {
           .withBody(dto)
           .expectStatus(409);
       });
+    });
+
+    describe('Verify Email', () => {
+      it('should throw if token is invalid', () => {
+        return pactum
+          .spec()
+          .get('/auth/verification/invalid_token')
+          .expectStatus(400);
+      });
+
+      it('should throw if token is expired', () => {
+        const emailToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjk5LCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE2MjQ0NjYwNzAsImV4cCI6MTYyNDU1MjA3MH0.4ZrZk3ZvQf0zQgN2Xr3QJ4W1oIY8K6Q5C3zvRq4FQcM';
+        return pactum
+          .spec()
+          .get(`/auth/verification/${emailToken}`)
+          .expectStatus(400);
+      });
+
+      // it('should verify email', () => {
+      //   return pactum
+      //     .spec()
+      //     .get(`/auth/verification/$S{emailToken}`)
+      //     .expectStatus(200);
+      // });
     });
 
     describe('Login', () => {
@@ -310,6 +337,44 @@ describe('App e2e', () => {
             Authorization: 'Bearer 1',
           })
           .expectStatus(401);
+      });
+
+      it('should throw if user does not verifiy his email', () => {
+        return pactum
+          .spec()
+          .post('/birthday')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(403)
+          .stores('birthdayId', 'id');
+      });
+
+      describe('Auth', () => {
+        it('should verify first & second user email', async () => {
+          const id1 = await pactum
+            .spec()
+            .get('/auth/check')
+            .withHeaders({
+              Authorization: 'Bearer $S{userAt}',
+            })
+            .expectStatus(200)
+            .returns('id');
+
+          const id2 = await pactum
+            .spec()
+            .get('/auth/check')
+            .withHeaders({
+              Authorization: 'Bearer $S{userAt2}',
+            })
+            .expectStatus(200)
+            .returns('id');
+
+          await prisma.verifiyUserById(parseInt(id1));
+          await prisma.verifiyUserById(parseInt(id2));
+          return true;
+        });
       });
 
       it('should throw if no body provided', () => {
