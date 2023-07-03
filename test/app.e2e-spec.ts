@@ -37,6 +37,13 @@ describe('App e2e', () => {
     it('should return status ok', () => {
       return pactum.spec().get('/health-check').expectStatus(200);
     });
+
+    it('should throw if too many requests', async () => {
+      for (let i = 1; i <= 9; i++) {
+        await pactum.spec().get('/health-check').expectStatus(200);
+      }
+      return pactum.spec().get('/health-check').expectStatus(429);
+    });
   });
 
   describe('Auth', () => {
