@@ -8,8 +8,8 @@ export class PrismaService extends PrismaClient {
     super({ datasources: { db: { url: config.get('DATABASE_URL') } } });
   }
 
-  cleanDb() {
-    return this.$transaction([this.user.deleteMany()]);
+  async cleanDb() {
+    return await this.$transaction([this.user.deleteMany()]);
   }
 
   async verifiyUserById(userId: number) {

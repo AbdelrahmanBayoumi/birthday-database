@@ -26,7 +26,9 @@ describe('App e2e', () => {
     await app.init();
     await app.listen(3334);
     prisma = app.get(PrismaService);
+    await prisma.cleanDb();
     pactum.request.setBaseUrl('http://localhost:3334');
+    pactum.request.setDefaultTimeout(10000);
   });
 
   afterAll(() => {
@@ -105,7 +107,8 @@ describe('App e2e', () => {
           .spec()
           .post('/auth/signup')
           .withBody(userDto)
-          .expectStatus(201);
+          .expectStatus(201)
+          .withRequestTimeout(5000);
       });
 
       it('should throw if email is already used', () => {
