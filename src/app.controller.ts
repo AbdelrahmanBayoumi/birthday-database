@@ -3,12 +3,14 @@ import { Controller, Get } from '@nestjs/common';
 @Controller()
 export class AppController {
   @Get('/health-check')
-  helthCheck(): string {
-    return "I'm alive!";
+  helthCheck(): { status: string } {
+    return { status: 'ok' };
   }
 
-  @Get('/')
+  // return a plain text string as a response to the GET request to the root path
+  @Get()
   getHello(): string {
     return 'Hello World!';
   }
+  
 }
