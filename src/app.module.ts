@@ -8,9 +8,11 @@ import { BirthdayModule } from './birthday/birthday.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { UserSensitiveDataInterceptor } from './interceptors';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
+    LoggerModule.forRoot(),
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,

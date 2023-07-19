@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   // cors: true = allow all the request from any domain
@@ -8,6 +9,8 @@ async function bootstrap() {
     cors: true,
     bufferLogs: true,
   });
+
+  app.useLogger(app.get(Logger));
 
   // [whitelist: true] = remove all the properties that are not defined in the DTO
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
