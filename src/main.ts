@@ -12,7 +12,7 @@ async function bootstrap() {
   // [whitelist: true] = remove all the properties that are not defined in the DTO
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  await app.listen(3333);
+  await app.listen(process.env.PORT || 3333);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
