@@ -2,12 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import { HashService } from '../utils/hash.service';
+import { MailUtil } from 'src/utils/MailUtil';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private readonly hashService: HashService,
+    private readonly mailUtil: MailUtil,
   ) {}
 
   /**
@@ -48,7 +50,7 @@ export class UserService {
     // the User object does not have the hash field so we need to fetch it from the db
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { hash: true },
+      select: { hash: true, email: true },
     });
     // Validate the user's current password
     const pwMatches = await this.hashService.verifyHashed(
@@ -65,7 +67,8 @@ export class UserService {
       data: { hash: newHash },
     });
 
-    // TODO: Send an email to the user notifying them that their password has been changed
+    // Send an email to the user notifying them that their password has been changed
+    this.mailUtil.sendPasswordChanged(user.email);
 
     // Invalidate the user's refresh token by setting it to null
     await this.prisma.user.update({

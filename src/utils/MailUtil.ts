@@ -64,4 +64,24 @@ export class MailUtil {
       return false;
     }
   }
+
+  async sendPasswordChanged(toEmail: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: toEmail,
+        from: this.fromEmail,
+        subject: 'Password Changed',
+        html: `
+        <div style="text-align: center;height:100vh;color: white;">
+          <h1 style=" padding: 20px; background:black;">Welcome to Birthday Database App 🗓️</h1>
+          <h3 style="text-align: center;margin-top:40px;color:black;" > Your password has been changed successfully</h3>
+      </div>
+        `,
+      });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 }
