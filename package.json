@@ -21,6 +21,7 @@
     "test:e2e": "dotenv -e .env -- jest --watch --no-cache --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nest-middlewares/serve-favicon": "^7.0.1",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.0.0",

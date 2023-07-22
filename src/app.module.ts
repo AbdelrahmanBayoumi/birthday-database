@@ -1,5 +1,5 @@
 import { AppController } from './app.controller';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -9,6 +9,8 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { UserSensitiveDataInterceptor } from './interceptors';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { ServeFaviconMiddleware } from '@nest-middlewares/serve-favicon';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -37,4 +39,12 @@ import { LoggerModule } from 'nestjs-pino';
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    // IMPORTANT! Call Middleware.configure BEFORE using it for routes
+    ServeFaviconMiddleware.configure(
+      join(__dirname, '..', 'public', 'assets', 'icon.png'),
+    );
+    consumer.apply(ServeFaviconMiddleware).forRoutes('');
+  }
+}
