@@ -54,4 +54,9 @@ export class BirthdayController {
   delete(@GetUser() user: User, @Param('id', ParseIntPipe) birthdayId: number) {
     return this.birthdayService.delete(user, birthdayId);
   }
+
+  @Get('relationships')
+  async getRelationships(@GetUser() user: User) {
+    return await this.birthdayService.getRelationships(user);
+  }
 }

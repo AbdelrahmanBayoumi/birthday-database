@@ -110,4 +110,17 @@ export class BirthdayService {
     });
     return;
   }
+
+  /**
+   * Get all relationships for user
+   * @param user user object
+   * @returns all relationships for user
+   */
+  async getRelationships(user: User) {
+    return await this.prisma.birthday.findMany({
+      where: { userId: user.id },
+      select: { relationship: true },
+      distinct: ['relationship'],
+    });
+  }
 }
