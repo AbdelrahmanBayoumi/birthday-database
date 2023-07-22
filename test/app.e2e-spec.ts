@@ -339,6 +339,32 @@ describe('App e2e', () => {
           .expectStatus(200);
       });
     });
+
+    describe('Forget Password', () => {
+      it('should throw if email not entered', () => {
+        return pactum.spec().post('/auth/forget-password').expectStatus(400);
+      });
+
+      it('should throw if email not valid', () => {
+        return pactum
+          .spec()
+          .post('/auth/forget-password')
+          .withBody({
+            email: 'fake_email',
+          })
+          .expectStatus(400);
+      });
+
+      it('should submit forget password', () => {
+        return pactum
+          .spec()
+          .post('/auth/forget-password')
+          .withBody({
+            email: userDto.email,
+          })
+          .expectStatus(200);
+      });
+    });
   });
 
   describe('Auth', () => {

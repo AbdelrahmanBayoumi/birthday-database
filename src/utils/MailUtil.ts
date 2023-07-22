@@ -44,4 +44,24 @@ export class MailUtil {
       return false;
     }
   }
+
+  async sendForgetPasswordMail(toEmail: string, tempPassword: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: toEmail,
+        from: this.fromEmail,
+        subject: 'Forget Password Mail',
+        html: `
+        <div style="text-align: center;height:100vh;color: white;">
+          <h1 style=" padding: 20px; background:black;">Welcome to Birthday Database App 🗓️</h1>
+          <h3 style="text-align: center;margin-top:40px;color:black;" > Your temporary password is ${tempPassword}</h3>
+      </div>
+        `,
+      });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 }

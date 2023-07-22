@@ -232,4 +232,30 @@ export class AuthService {
     await this.updateRefreshToken(user.id, tokens.refresh_token);
     return tokens;
   }
+
+  /**
+   * handle the forget password request by sending a temporary password to the user in email and updating the password hash
+   * @param email email of the user
+   * @returns true if the mail was sent successfully
+   */
+  async forgetPassword(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Access denied');
+    }
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const hash = await this.hashService.generateHash(tempPassword);
+
+    // update the password hash and reset the refresh token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        hash,
+        hashedRt: null,
+      },
+    });
+    return await this.mailUtil.sendForgetPasswordMail(email, tempPassword);
+  }
 }

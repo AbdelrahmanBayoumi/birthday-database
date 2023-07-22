@@ -9,7 +9,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignUpDto, LoginDto } from './dto';
+import { SignUpDto, LoginDto, EmailDto } from './dto';
 import { GetUser } from './decorator';
 import { User } from '@prisma/client';
 import { AccessTokenGuard, RefreshTokenGuard } from './guard';
@@ -63,7 +63,13 @@ export class AuthController {
 
   @Post('resend-verification')
   @HttpCode(HttpStatus.OK)
-  resendVerification(@Body('email') email: string) {
-    return this.authService.resendVerification(email);
+  resendVerification(@Body() dto: EmailDto) {
+    return this.authService.resendVerification(dto.email);
+  }
+
+  @Post('forget-password')
+  @HttpCode(HttpStatus.OK)
+  forgetPassword(@Body() dto: EmailDto) {
+    return this.authService.forgetPassword(dto.email);
   }
 }
