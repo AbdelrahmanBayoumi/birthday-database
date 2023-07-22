@@ -19,6 +19,8 @@ export class UserSensitiveDataInterceptor implements NestInterceptor {
           delete data.updatedAt;
           delete data.hashedRt;
           return data;
+        } else {
+          return data;
         }
       }),
     );
