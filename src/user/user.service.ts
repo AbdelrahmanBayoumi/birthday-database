@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import { HashService } from '../utils/hash.service';
-import { MailUtil } from 'src/utils/MailUtil';
+import { MailUtil } from '../utils/MailUtil';
 
 @Injectable()
 export class UserService {
