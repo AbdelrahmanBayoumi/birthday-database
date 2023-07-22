@@ -1,13 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
+  @ApiOkResponse({ description: 'Health check endpoint' })
   @Get('/health-check')
   healthCheck(): { status: string } {
     return { status: 'ok' };
   }
 
-  // return a plain text string as a response to the GET request to the root path
+  @ApiOkResponse({ description: 'Hello World endpoint' })
   @Get()
   getHello(): string {
     return 'Hello World!';

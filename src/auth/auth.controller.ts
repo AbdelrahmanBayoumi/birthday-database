@@ -14,11 +14,14 @@ import { GetUser } from './decorator';
 import { User } from '@prisma/client';
 import { AccessTokenGuard, RefreshTokenGuard } from './guard';
 import { Tokens } from './types';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOkResponse({ description: 'succes signup endpoint' })
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: SignUpDto): Promise<Tokens> {
@@ -31,6 +34,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @ApiOkResponse({ description: 'check token endpoint' })
   @Get('check')
   @UseGuards(AccessTokenGuard)
   checkToken(@GetUser() user: User) {

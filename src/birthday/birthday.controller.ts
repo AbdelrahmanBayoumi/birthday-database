@@ -16,8 +16,10 @@ import { AccessTokenGuard, VerificationGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { CreateBirthdayDto, EditBirthdayDto } from './dto';
 import { User } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AccessTokenGuard, VerificationGuard)
+@ApiTags('birthday')
 @Controller('birthday')
 export class BirthdayController {
   constructor(private birthdayService: BirthdayService) {}

@@ -15,8 +15,10 @@ import { GetUser } from '../auth/decorator';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AccessTokenGuard)
+@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -37,17 +39,6 @@ export class UserController {
     return this.userService.editUser(userId, dto);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(
-    @GetUser() user: User,
-    @Param('id', ParseIntPipe) userId: number,
-  ) {
-    this.checkIfUserIsAuthorized(user, userId);
-    await this.userService.deleteUser(userId);
-    return;
-  }
-
   @Patch(':id/change-password')
   async changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
@@ -58,6 +49,16 @@ export class UserController {
     return this.userService.changePassword(userId, changePasswordDto);
   }
 
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+  ) {
+    this.checkIfUserIsAuthorized(user, userId);
+    await this.userService.deleteUser(userId);
+    return;
+  }
   /**
    * Check if user is authorized to perform action
    * @param user user from access token
