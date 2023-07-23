@@ -4,7 +4,11 @@
 The Birthday Database app is a versatile tool that helps users keep track of important birthdays, including those of their loved ones. It features real-time age display in Hijri and Georgian calendars.  
 </p>
 
----
+- [x] Backend API ([Nest.js + PostgreSQL](#📦-api-documentation))
+- [x] UI/UX Design ([Figma](#-uiux-design))
+- [ ] Frontend Web App
+
+<br>
 
 
 <div align=center>
@@ -15,12 +19,8 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
 
 </div>
 
-<p align=center>
-See <a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">Figma UI Prototype</a><br>
-<a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">
-<img src="https://github.com/AbdelrahmanBayoumi/birthday-database/assets/48678280/23b329cb-628f-4589-8aa1-0166ee02c308" alt="UI Prototype">
-</a>
-</p>
+<!-- This app consitst of front-end and backend and UI UX Design -->
+
 
 
 ## 🚀 How to run
@@ -107,10 +107,23 @@ The backend API provides the following endpoints:
 5. **`DELETE /birthdays/:id`**: Delete a specific birthday by ID.
 6. **`GET /birthday/relationships`**: Retrieve all distinct relationships for the authenticated user.
 
+## 🎨 UI/UX Design
+
+
+<p align=center>
+See <a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">Figma UI Prototype</a><br>
+<a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">
+<img src="https://github.com/AbdelrahmanBayoumi/birthday-database/assets/48678280/23b329cb-628f-4589-8aa1-0166ee02c308" alt="UI Prototype">
+</a>
+</p>
+
+
 ## 💡 Contributing 
 If you want to contribute to this project and make it better with new ideas, your pull request is very welcomed.
 If you find any issue just put it in the repository issue section, thank you.
 
+## 📝 License
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
 <div align=center>
 
