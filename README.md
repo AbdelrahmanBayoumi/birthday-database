@@ -16,10 +16,10 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
 </div>
 
 <p align=center>
+See <a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">Figma UI Prototype</a><br>
 <a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">
 <img src="https://github.com/AbdelrahmanBayoumi/birthday-database/assets/48678280/23b329cb-628f-4589-8aa1-0166ee02c308" alt="UI Prototype">
 </a>
-See Figma UI Prototype ⇒ <a href="https://www.figma.com/file/fQummxaRmDPtuE8zaglFRW/Age-Tracker-App?type=design&node-id=0%3A1&mode=design&t=iQSoKL7BNwAdGmjn-1">Figma</a>
 </p>
 
 
