@@ -15,7 +15,7 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
 
 </div>
 
-## ✅ How to run the project locally
+## 🚀 How to run the project locally
 1. Clone the repository
 
     ```bash
