@@ -1,10 +1,10 @@
 {
   "name": "birthday-database",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "The Birthday Database app is a versatile tool that helps users keep track of important birthdays, including those of their loved ones. It features real-time age display in Hijri and Georgian calendars.",
+  "author": "Abdelrahman Bayoumi <https://github.com/AbdelrahmanBayoumi>",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "GPL-3.0",
   "scripts": {
     "prisma:dev:deploy": "prisma migrate deploy",
     "build": "nest build",

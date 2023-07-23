@@ -15,6 +15,39 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
 
 </div>
 
+## ✅ How to run the project locally
+1. Clone the repository
+
+    ```bash
+    git clone https://github.com/AbdelrahmanBayoumi/birthday-database.git
+    ```
+
+2. Install the dependencies
+    
+    ```bash
+    npm install
+    ```
+3. Create a `.env` file in the root directory and add the following environment variables:
+    - `DATABASE_URL`: The connection URL for the PostgreSQL database.
+    - `JWT_ACCESS_SECRET`: The secret key used to sign the JWT tokens.
+    - `JWT_REFRESH_SECRET`: The secret key used to sign the JWT refresh tokens.
+    - `JWT_EMAIL_SECRET`: The secret key used to sign the JWT email verification tokens.
+    - `FROM_EMAIL`: The email address of the sender (e.g. `Birthday Database <no-reply@birthday-datbase.com>`).
+    - `EMAIL_PASS`: The password of the sender's email address.
+    - `HOST_URL`: The URL of the frontend application.
+    - `PORT`: The port number for the server.
+5. Push the database schema to the database using Prisma CLI
+    ```bash
+    npx prisma db push
+    ```
+6. Start the server
+    ```bash
+    npm run start:dev
+    ```
+
+
+
+
 ## 👨🏻‍💻 Technologies Used
 
 - **[Nest.js](https://nestjs.com/)**: A progressive Node.js framework for building efficient and scalable server-side applications.
@@ -24,25 +57,37 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
 - **[JWT](https://jwt.io/)**: JSON Web Tokens for secure authentication and authorization.
 - **[Jest](https://jestjs.io/)**: A popular JavaScript testing framework for unit testing the backend code.
 - **[Pino](https://github.com/pinojs/pino)**: A fast and low-overhead logger for Node.js.
+- **[Swagger](https://docs.nestjs.com/openapi/introduction)**: The Swagger UI is an open source project to visually render documentation for 
+an API defined with the OpenAPI (Swagger) Specification
+
 
 ---
 
 ## 📦 API Documentation
 
+- Refer to the API documentation for detailed information on request/response structures and authentication requirements. ⇒ [Postman](https://documenter.getpostman.com/view/19740088/2s93z5A5NX) or [Swagger](https://birthday-database.azurewebsites.net/api)
+
 The backend API provides the following endpoints:
+
+### General
+1. **`GET /api`** - Get the API Swagger documentation.
+2. **`GET /health-check`** - Check the health of the API.
 
 ### Auth
 
 1. **`POST /auth/signup`**- User signup endpoint.
 2. **`POST /auth/login`** - User login endpoint.
 3. **`GET /auth/check`** - Check user Token
-4. **`POST /auth/refresh`**: Refresh the authentication token.
-5. **`POST /auth/forgot-password`**: Initiate the password reset process by sending a reset link to the user's email.
-6. **`POST /auth/active-email`**: Verify the user's email address by confirming the provided verification token.
+4. **`POST /auth/logout`** - User logout endpoint.
+5. **`POST /auth/refresh`**: Refresh the authentication token.
+6. **`GET /auth/verification/{token}`**: Verify the user's email address by confirming the provided verification token.
+7. **`POST /auth/resend-verification`**: Resend the verification email to the user's email address.
+8. **`POST /auth/forgot-password`**: Initiate the password reset process by sending a reset link to the user's email.
 
 ### User
 
 1. **`PATCH /users/:id`** - Update user [ `fullName` or `birthday`]
+2. **`PATCH /users/{id}/change-password`** - Change user password
 2. **`DELETE /users/:id`** - Delete the authenticated user
 
 ### Birthdays
@@ -50,11 +95,9 @@ The backend API provides the following endpoints:
 1. **`GET /birthdays`**: Retrieve all birthdays for the authenticated user.
 2. **`POST /birthdays`**: Create a new birthday for the authenticated user.
 3. **`GET /birthdays/:id`**: Retrieve a specific birthday by ID.
-4. **`PUT /birthdays/:id`**: Update a specific birthday by ID.
+4. **`PATCH /birthdays/:id`**: Update a specific birthday by ID.
 5. **`DELETE /birthdays/:id`**: Delete a specific birthday by ID.
-
-Refer to the API documentation for detailed information on request/response structures and authentication requirements. ⇒ https://documenter.getpostman.com/view/19740088/2s93z5A5NX
-
+6. **`GET /birthday/relationships`**: Retrieve all distinct relationships for the authenticated user.
 
 ## 💡 Contributing 
 If you want to contribute to this project and make it better with new ideas, your pull request is very welcomed.
