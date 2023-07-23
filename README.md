@@ -27,7 +27,7 @@ The Birthday Database app is a versatile tool that helps users keep track of imp
     ```bash
     npm install
     ```
-3. Create a `.env` file in the root directory and add the following environment variables:
+3. Create a `.env` file in the root directory like `.env.example` and fill in the required environment variables:
     - `DATABASE_URL`: The connection URL for the PostgreSQL database.
     - `JWT_ACCESS_SECRET`: The secret key used to sign the JWT tokens.
     - `JWT_REFRESH_SECRET`: The secret key used to sign the JWT refresh tokens.
