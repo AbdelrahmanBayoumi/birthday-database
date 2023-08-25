@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { BirthdayModule } from './birthday/birthday.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { UserSensitiveDataInterceptor } from './interceptors';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+// import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { ServeFaviconMiddleware } from '@nest-middlewares/serve-favicon';
 import { join } from 'path';
@@ -15,10 +15,10 @@ import { join } from 'path';
 @Module({
   imports: [
     LoggerModule.forRoot(),
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 100,
-    }),
+    // ThrottlerModule.forRoot({
+    //   ttl: 60,
+    //   limit: 100,
+    // }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -33,10 +33,10 @@ import { join } from 'path';
       provide: APP_INTERCEPTOR,
       useClass: UserSensitiveDataInterceptor,
     },
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {
