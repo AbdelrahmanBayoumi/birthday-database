@@ -17,7 +17,7 @@ import { join } from 'path';
     LoggerModule.forRoot(),
     ThrottlerModule.forRoot({
       ttl: 60,
-      limit: 10,
+      limit: 100,
     }),
     ConfigModule.forRoot({
       isGlobal: true,
