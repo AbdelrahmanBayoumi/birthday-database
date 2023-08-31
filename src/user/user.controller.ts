@@ -9,6 +9,10 @@ import {
   HttpException,
   HttpStatus,
   ParseIntPipe,
+  UseInterceptors,
+  Post,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
@@ -16,12 +20,17 @@ import { ChangePasswordDto, EditUserDto } from './dto';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FirebaseService } from '../utils/firebase.service';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private readonly firebaseService: FirebaseService,
+  ) {}
 
   @Patch(':id')
   editUser(
@@ -70,5 +79,39 @@ export class UserController {
     if (user.id !== userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('upload-profile-image')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB limit
+      },
+      fileFilter: (req, file, callback) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return callback(
+            new BadRequestException(
+              'Only image files (jpg, jpeg, png) are allowed!',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async uploadImage(
+    @UploadedFile() image: Express.Multer.File,
+    @GetUser('id') id: number,
+  ): Promise<{ url: string }> {
+    let imageUrl = null;
+    if (image) {
+      const filename = await this.firebaseService.uploadImage(image);
+      imageUrl = `https://storage.googleapis.com/${process.env.BUCKET}/${filename}`;
+    }
+
+    await this.userService.addAvatar(id, imageUrl);
+    return { url: imageUrl };
   }
 }

@@ -22,6 +22,7 @@ model User {
 
   fullName String
   birthday String
+  image    String?
 
   isVerified Boolean    @default(false)
   // One to Many Relationship between User and Birthday
@@ -38,6 +39,7 @@ model Birthday {
 
   name         String
   birthday     String
+  image        String?
   relationship String?
   notes        String?
 

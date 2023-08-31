@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import { HashService } from '../utils/hash.service';
@@ -78,5 +82,37 @@ export class UserService {
 
     // Return a success response
     return { message: 'Password changed successfully' };
+  }
+
+  /**
+   * add avatar to user
+   * @param id id of user
+   * @param urlImage url of image in storage
+   * @throws NotFoundException if user not found
+   * @returns void
+   */
+  async addAvatar(id: number, urlImage: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException('NOT FOUND USER');
+    }
+
+    if (user.image === null || user.image === '') {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          image: urlImage,
+        },
+      });
+    } else {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          image: urlImage,
+        },
+      });
+    }
   }
 }

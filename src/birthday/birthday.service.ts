@@ -123,4 +123,24 @@ export class BirthdayService {
       distinct: ['relationship'],
     });
   }
+
+  /**
+   * add avatar to birthday
+   * @param id id of birthday
+   * @param urlImage url of image in storage
+   * @throws NotFoundException if user not found
+   * @returns void
+   */
+  async addAvatar(id: number, urlImage: string) {
+    const birthday = await this.prisma.birthday.findUnique({
+      where: { id },
+    });
+    if (!birthday) {
+      throw new NotFoundException('Birthday not found');
+    }
+    return this.prisma.birthday.update({
+      where: { id },
+      data: { image: urlImage },
+    });
+  }
 }
