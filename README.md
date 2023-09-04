@@ -1,12 +1,14 @@
 <h1 align=center>🗓️ Birthday Database</h1>
 
 <p align=center>
-The Birthday Database app is a versatile tool that helps users keep track of important birthdays, including those of their loved ones. It features real-time age display in Hijri and Georgian calendars.  
+The Birthday Database app is a flexible tool that helps users keep track of important birthdays, including those of their loved ones. It features real-time age display in Hijri and Georgian calendars.  
 </p>
 
 - [x] Backend API ([Nest.js + PostgreSQL](#-api-documentation))
-- [x] UI/UX Design ([Figma](#-uiux-design))
-- [ ] Frontend Web App
+- [x] Backend API Hosted on Microsoft Azure: https://birthday-database.azurewebsites.net/
+- [x] Frontend Web App [(Angular)](https://github.com/AbdelrahmanBayoumi/age-tracker-app)
+- [x] Frontend Hosted on Firebase: https://age-tracker-site.web.app/
+- [x] UI/UX Design [(Figma)](#-uiux-design)
 
 <br>
 
