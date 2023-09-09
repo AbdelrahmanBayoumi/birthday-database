@@ -11,10 +11,14 @@ import { UserSensitiveDataInterceptor } from './interceptors';
 import { LoggerModule } from 'nestjs-pino';
 import { ServeFaviconMiddleware } from '@nest-middlewares/serve-favicon';
 import { join } from 'path';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './utils/tasks/tasks.module';
 
 @Module({
   imports: [
     LoggerModule.forRoot(),
+    ScheduleModule.forRoot(),
+    TasksModule,
     // ThrottlerModule.forRoot({
     //   ttl: 60,
     //   limit: 100,

@@ -41,15 +41,17 @@ export class AuthController {
     user.createdAt = undefined;
     user.updatedAt = undefined;
     user.hash = undefined;
-    user.hashedRt = undefined;
     return user;
   }
 
   @Post('logout')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  logout(@GetUser('id') userId: number) {
-    this.authService.logout(userId);
+  logout(
+    @GetUser('id') userId: number,
+    @Body('refresh_token') refreshToken: string,
+  ) {
+    this.authService.logout(userId, refreshToken);
     return;
   }
 

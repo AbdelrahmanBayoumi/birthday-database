@@ -25,17 +25,18 @@ export class AuthService {
   ) {}
 
   /**
-   * update the refresh token of the user
-   * @param userId user id to be updated
-   * @param refreshToken refresh token to be updated
+   * add a refresh token to the database
+   * @param userId user id to be added to the refresh token
+   * @param refreshToken refresh token to be added to
    */
-  async updateRefreshToken(userId: number, refreshToken: string) {
-    const hashedRefreshToken = await this.hashService.generateHash(
-      refreshToken,
-    );
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { hashedRt: hashedRefreshToken },
+  async addRefreshToken(userId: number, refreshToken: string) {
+    await this.prisma.refreshToken.create({
+      data: {
+        userId,
+        token: refreshToken,
+        // expiresAt: date of 30 days from now
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
     });
   }
 
@@ -62,7 +63,7 @@ export class AuthService {
       this.sendVerificationEmail(user.id, user.email);
 
       const tokens = await this.getTokens(user.id, user.email);
-      await this.updateRefreshToken(user.id, tokens.refresh_token);
+      await this.addRefreshToken(user.id, tokens.refresh_token);
       return tokens;
     } catch (error) {
       // if the error is because of a duplicate email
@@ -71,6 +72,39 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  /**
+   * login a user and return a access token and a refresh token
+   * @param dto LoginDto object with user email and password
+   * @returns access token and refresh token pair
+   * @throws UnauthorizedException if the credentials are incorrect or the user does not exist
+   */
+  async login(dto: LoginDto): Promise<Tokens> {
+    // find the user by email
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    // if user does not exist throw exception
+    if (!user) {
+      throw new UnauthorizedException('Access denied');
+    }
+
+    // compare password
+    const pwMatches = await this.hashService.verifyHashed(
+      user.hash,
+      dto.password,
+    );
+
+    // if password incorrect throw exception
+    if (!pwMatches) {
+      throw new UnauthorizedException('Access denied');
+    }
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.addRefreshToken(user.id, tokens.refresh_token);
+    return tokens;
   }
 
   /**
@@ -129,39 +163,6 @@ export class AuthService {
   }
 
   /**
-   * login a user and return a access token and a refresh token
-   * @param dto LoginDto object with user email and password
-   * @returns access token and refresh token pair
-   * @throws UnauthorizedException if the credentials are incorrect or the user does not exist
-   */
-  async login(dto: LoginDto): Promise<Tokens> {
-    // find the user by email
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-
-    // if user does not exist throw exception
-    if (!user) {
-      throw new UnauthorizedException('Access denied');
-    }
-
-    // compare password
-    const pwMatches = await this.hashService.verifyHashed(
-      user.hash,
-      dto.password,
-    );
-
-    // if password incorrect throw exception
-    if (!pwMatches) {
-      throw new UnauthorizedException('Access denied');
-    }
-
-    const tokens = await this.getTokens(user.id, user.email);
-    await this.updateRefreshToken(user.id, tokens.refresh_token);
-    return tokens;
-  }
-
-  /**
    * sign a access token and a refresh token for the user and return them
    * @param userId user id to be signed
    * @param email user email to be signed
@@ -179,7 +180,7 @@ export class AuthService {
       this.jwt.signAsync(
         { sub: userId, email },
         {
-          expiresIn: '7d',
+          expiresIn: '30d',
           secret: this.config.get('JWT_REFRESH_SECRET'),
         },
       ),
@@ -196,40 +197,42 @@ export class AuthService {
    * @param userId user id to be logged out
    * @returns true if the user was logged out successfully
    */
-  async logout(userId: number): Promise<boolean> {
-    await this.prisma.user.updateMany({
-      where: {
-        id: userId,
-        hashedRt: {
-          not: null,
-        },
-      },
-      data: {
-        hashedRt: null,
-      },
-    });
+  async logout(userId: number, refreshToken: string): Promise<boolean> {
+    await this.revokeRefreshToken(userId, refreshToken);
     return true;
   }
 
   /**
-   * refresh the access token and the refresh token
+   * refresh the access token and the refresh token by verifying the refresh token
    * @param user user to be refreshed
    * @returns access token and refresh token pair
    * @throws ForbiddenException if the user does not have a refresh token
    * @throws ForbiddenException if the refresh token does not match the hashed refresh token
    */
   async refreshTokens(user: User): Promise<Tokens> {
-    if (!user || !user.hashedRt || !user['refreshToken'])
+    if (!user) throw new ForbiddenException('Access Denied');
+    // user['refreshToken'] is the token from RefreshTokenGuard which is added to the user object by the guard
+
+    // get refreshToken to check if it is valid
+    const refreshTokenToVerify = await this.prisma.refreshToken.findFirst({
+      where: {
+        userId: user.id,
+        token: user['refreshToken'],
+      },
+    });
+
+    if (!refreshTokenToVerify || refreshTokenToVerify.expiresAt < new Date())
       throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await this.hashService.verifyHashed(
-      user.hashedRt,
-      user['refreshToken'],
-    );
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
+    // delete the refresh token from the db because we will add a new one
+    await this.prisma.refreshToken.delete({
+      where: {
+        id: refreshTokenToVerify.id,
+      },
+    });
 
     const tokens = await this.getTokens(user.id, user.email);
-    await this.updateRefreshToken(user.id, tokens.refresh_token);
+    await this.addRefreshToken(user.id, tokens.refresh_token);
     return tokens;
   }
 
@@ -253,9 +256,27 @@ export class AuthService {
       where: { id: user.id },
       data: {
         hash,
-        hashedRt: null,
       },
     });
+    // remove all refresh tokens that user have
+    await this.revokeRefreshToken(user.id);
     return await this.mailUtil.sendForgetPasswordMail(email, tempPassword);
+  }
+
+  async revokeRefreshToken(userId: number, token?: string): Promise<void> {
+    if (!token) {
+      await this.prisma.refreshToken.deleteMany({
+        where: {
+          userId: userId,
+        },
+      });
+    } else {
+      await this.prisma.refreshToken.deleteMany({
+        where: {
+          userId: userId,
+          token: token,
+        },
+      });
+    }
   }
 }

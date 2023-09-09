@@ -74,10 +74,11 @@ export class UserService {
     // Send an email to the user notifying them that their password has been changed
     this.mailUtil.sendPasswordChanged(user.email);
 
-    // Invalidate the user's refresh token by setting it to null
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { hashedRt: null },
+    // remove all refresh tokens that user have
+    await this.prisma.refreshToken.deleteMany({
+      where: {
+        userId: userId,
+      },
     });
 
     // Return a success response

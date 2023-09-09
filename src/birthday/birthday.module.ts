@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BirthdayService } from './birthday.service';
 import { BirthdayController } from './birthday.controller';
-import { FirebaseService } from 'src/utils/firebase.service';
+import { FirebaseService } from '../utils/firebase.service';
 
 @Module({
   providers: [BirthdayService, FirebaseService],

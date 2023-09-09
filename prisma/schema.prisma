@@ -18,16 +18,16 @@ model User {
 
   email    String  @unique
   hash     String
-  hashedRt String?
 
   fullName String
   birthday String
   image    String?
 
-  isVerified Boolean    @default(false)
+  isVerified   Boolean        @default(false)
   // One to Many Relationship between User and Birthday
   // One User can have many Birthdays
-  Birthday   Birthday[]
+  Birthday     Birthday[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -49,4 +49,15 @@ model Birthday {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("birthdays")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  // Many to One Relationship between RefreshToken and User and onDelete Cascade
+  // Many RefreshTokens can belong to one User
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

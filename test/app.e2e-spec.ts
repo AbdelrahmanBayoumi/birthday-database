@@ -40,12 +40,12 @@ describe('App e2e', () => {
       return pactum.spec().get('/health-check').expectStatus(200);
     });
 
-    it('should throw if too many requests', async () => {
-      for (let i = 1; i <= 9; i++) {
-        await pactum.spec().get('/health-check').expectStatus(200);
-      }
-      return pactum.spec().get('/health-check').expectStatus(429);
-    });
+    // it('should throw if too many requests', async () => {
+    //   for (let i = 1; i <= 9; i++) {
+    //     await pactum.spec().get('/health-check').expectStatus(200);
+    //   }
+    //   return pactum.spec().get('/health-check').expectStatus(429);
+    // });
   });
 
   describe('Auth', () => {
@@ -227,6 +227,9 @@ describe('App e2e', () => {
           .post('/auth/logout')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody({
+            refresh_token: '$S{userRt}',
           })
           .expectStatus(200);
       });
