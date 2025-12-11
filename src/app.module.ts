@@ -5,11 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BirthdayModule } from './birthday/birthday.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { UserSensitiveDataInterceptor } from './interceptors';
 // import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
-import { ServeFaviconMiddleware } from '@nest-middlewares/serve-favicon';
+import * as favicon from 'serve-favicon';
 import { join } from 'path';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './utils/tasks/tasks.module';
@@ -45,10 +45,8 @@ import { TasksModule } from './utils/tasks/tasks.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    // IMPORTANT! Call Middleware.configure BEFORE using it for routes
-    ServeFaviconMiddleware.configure(
-      join(__dirname, '..', 'public', 'assets', 'icon.png'),
-    );
-    consumer.apply(ServeFaviconMiddleware).forRoutes('');
+    consumer
+      .apply(favicon(join(__dirname, '..', 'public', 'assets', 'icon.png')))
+      .forRoutes('');
   }
 }

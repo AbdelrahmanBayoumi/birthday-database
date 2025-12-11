@@ -41,7 +41,7 @@ export class UserController {
     this.checkIfUserIsAuthorized(user, userId);
 
     // if no data is provided
-    if (!dto.fullName && !dto.birthday) {
+    if (!dto || (!dto.fullName && !dto.birthday)) {
       throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
 

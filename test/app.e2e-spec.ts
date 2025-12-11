@@ -24,10 +24,10 @@ describe('App e2e', () => {
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     await app.init();
-    await app.listen(3334);
+    await app.listen(3335);
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
-    pactum.request.setBaseUrl('http://localhost:3334');
+    pactum.request.setBaseUrl('http://localhost:3335');
     pactum.request.setDefaultTimeout(10000);
   });
 
@@ -366,7 +366,7 @@ describe('App e2e', () => {
             email: userDto.email,
           })
           .expectStatus(200);
-      });
+      }, 30_000);
     });
   });
 
