@@ -6,14 +6,14 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import { HashService } from '../utils/hash.service';
-import { MailUtil } from '../utils/MailUtil';
+import { EmailService } from '../modules/email/services/email.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private readonly hashService: HashService,
-    private readonly mailUtil: MailUtil,
+    private readonly mailUtil: EmailService,
   ) {}
 
   /**

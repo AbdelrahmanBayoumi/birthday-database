@@ -11,16 +11,16 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Tokens } from './types';
 import { User } from '@prisma/client';
-import { MailUtil } from '../utils/MailUtil';
 import { HashService } from '../utils/hash.service';
+import { EmailService } from '../modules/email/services/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
-    private config: ConfigService,
-    private mailUtil: MailUtil,
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+    private readonly config: ConfigService,
+    private readonly emailService: EmailService,
     private readonly hashService: HashService,
   ) {}
 
@@ -125,7 +125,7 @@ export class AuthService {
     const url =
       this.config.get('HOST_URL') + '/auth/verification/' + emailToken;
 
-    if (!(await this.mailUtil.sendVerificationMail(email, url))) {
+    if (!(await this.emailService.sendVerificationMail(email, url))) {
       throw new Error('ERROR in Sending verification Mail');
     }
   }
@@ -260,7 +260,7 @@ export class AuthService {
     });
     // remove all refresh tokens that user have
     await this.revokeRefreshToken(user.id);
-    return await this.mailUtil.sendForgetPasswordMail(email, tempPassword);
+    return await this.emailService.sendForgetPasswordMail(email, tempPassword);
   }
 
   async revokeRefreshToken(userId: number, token?: string): Promise<void> {

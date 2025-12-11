@@ -21,7 +21,6 @@
     "test:e2e": "dotenv -e .env -- jest --watch --no-cache --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.1.9",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.9",
@@ -57,8 +56,8 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.0",
     "@types/nodemailer": "^7.0.4",
-    "@types/supertest": "^6.0.3",
     "@types/serve-favicon": "^2.5.7",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "dotenv-cli": "^11.0.0",
